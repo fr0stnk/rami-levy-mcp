@@ -328,6 +328,7 @@ export function ramiLevyToolHandlers(store: CartStore, client: RamiLevyClient) {
         ok: true,
         page: result.data.currentPage,
         lastPage: result.data.lastPage,
+        hasNext: result.data.currentPage < result.data.lastPage,
         totalOrders: result.data.total,
         orders: result.data.orders.map((o) => ({
           orderId: o.id,
@@ -587,7 +588,7 @@ export function registerRamiLevyTools(server: McpServer, store: CartStore, clien
     'rami_levy_list_orders',
     {
       description: 'List one page of the account\'s past orders, newest first: orderId, createdAt (ISO-8601 UTC), supplyAt (the delivery slot, Israel local time), status and total (what was charged, delivery fee included). ' +
-        'Paginated — the response carries page, lastPage and totalOrders, so ask for page 2, 3, … to go further back. Read-only: it never touches the cart. ' +
+        'Paginated — the response carries page, lastPage, hasNext and totalOrders, so ask for page 2, 3, … to go further back; a page past lastPage comes back empty. Read-only: it never touches the cart. ' +
         'Pass an orderId to rami_levy_view_order to see what was in that order.',
       inputSchema: { page: PAGE },
     },
@@ -598,7 +599,7 @@ export function registerRamiLevyTools(server: McpServer, store: CartStore, clien
     'rami_levy_view_order',
     {
       description: 'Show one past order in full: every line with productId, name, unit price, qty and lineTotal, plus the order\'s own total, delivery fee, status and delivery slot. ' +
-        'The orderId comes from rami_levy_list_orders. Read-only: it never touches the cart. ' +
+        'The orderId comes from rami_levy_list_orders. Read-only: it never touches the cart. An unknown orderId returns reason not_found or rejected (Rami Levy answers 422), not a network error. ' +
         'A price, qty or total the order data does not carry is reported as null rather than 0. ' +
         'productId is the same id rami_levy_add_item takes, so a line can be re-added directly — but its price is what was paid then, not today\'s.',
       inputSchema: { orderId: ORDER_ID },

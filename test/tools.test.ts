@@ -670,6 +670,7 @@ test('listOrders maps a page of summaries and its pagination', async () => {
     ok: true,
     page: 3,
     lastPage: 24,
+    hasNext: true,
     totalOrders: 140,
     orders: [{ orderId: 9197912, createdAt: '2026-09-08T05:59:37.000000Z', supplyAt: '2026-09-09 12:00:00', status: 'done', total: 1313.13 }],
   });

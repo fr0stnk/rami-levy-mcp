@@ -165,7 +165,9 @@ Reasons and what to do about each:
 |---|---|---|
 | `auth_expired` | A JSON response came back 401/403 | Re-capture the token bundle above |
 | `blocked_by_cloudflare` | The response wasn't JSON, at any HTTP status | Recapture the bundle first (`cf_clearance` expires). Only if a fresh capture still fails, suspect your egress IP (proxy/VPN/Israeli IP) |
-| `network_error` | Fetch failed, the body was invalid JSON, the response shape was unexpected (including an order `created_at` that can't be read during the checkout check), or search ignored the query | Check connectivity; if it persists, the API may have changed (see below) |
+| `not_found` | Rami Levy answered 404 for this request | Check the id; retrying will not help |
+| `rejected` | Rami Levy refused the request with another 4xx, such as 422 for an unknown order id; `details` carries its message | Fix the request; retrying will not help |
+| `network_error` | Fetch failed, Rami Levy answered 5xx, the body was invalid JSON, the response shape was unexpected (including an order `created_at` that can't be read during the checkout check), or search ignored the query | Check connectivity; if it persists, the API may have changed (see below) |
 | `items_rejected` | The cart sync succeeded but the server dropped some products (`rejected: [{productId, name}]`) | They were removed from the local cart too; search for alternatives |
 | `not_in_cart` | `remove_item` was called for a product not currently in the cart (nothing was synced) | Check `view_cart` for the current contents |
 | `invalid_args` | `reorder_from_history`'s `numOrders`/`minOccurrences` were out of bounds | Pass `numOrders` 1–50 and `minOccurrences` between 1 and `numOrders` |
