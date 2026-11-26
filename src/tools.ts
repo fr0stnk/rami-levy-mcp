@@ -249,6 +249,7 @@ async function mutateAndSync(
 
   // The server now holds exactly what was accepted from this payload.
   store.setLastSyncedAt(new Date().toISOString());
+  store.setLastServerTotal(sync.serverTotal);
 
   const accepted = new Set(sync.acceptedIds);
   const rejected = store
@@ -290,10 +291,16 @@ export function ramiLevyToolHandlers(store: CartStore, client: RamiLevyClient) {
     },
 
     async viewCart(): Promise<Content> {
+      const serverTotal = store.size > 0 ? store.getLastServerTotal() : null;
       return json({
         ok: true,
         items: store.getItems(),
         total: store.getTotal(),
+        ...(serverTotal != null ? {
+          serverTotal,
+          serverTotalAt: store.getLastSyncedAt(),
+          totalsNote: 'total is a local estimate at list prices; serverTotal is Rami Levy\'s own total at the last sync, with its promotions.',
+        } : {}),
         scope: VIEW_CART_SCOPE,
         checkoutUrl: CHECKOUT_URL,
         checkoutHint: CHECKOUT_HINT,

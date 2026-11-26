@@ -52,6 +52,20 @@ export class CartStore {
       .run(isoUtc);
   }
 
+  // Rami Levy's own total from the last successful sync, which includes the
+  // promotions the local price × qty estimate cannot see.
+  getLastServerTotal(): number | null {
+    const row = this.db.prepare("SELECT value FROM meta WHERE key = 'last_server_total'").get() as { value: string } | undefined;
+    return row ? Number(row.value) : null;
+  }
+
+  setLastServerTotal(total: number | null): void {
+    if (total == null) this.db.prepare("DELETE FROM meta WHERE key = 'last_server_total'").run();
+    else this.db
+      .prepare("INSERT INTO meta (key, value) VALUES ('last_server_total', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+      .run(String(total));
+  }
+
   addItem(productId: string, name: string, price: number, qty: number): void {
     const existing = this.db
       .prepare('SELECT qty FROM cart_items WHERE product_id = ?')

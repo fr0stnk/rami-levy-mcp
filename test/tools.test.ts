@@ -132,6 +132,20 @@ test('an unrecognized cart response shape (network_error from the client) leaves
   store.close();
 });
 
+test('viewCart shows Rami Levy\'s own total from the last sync next to the local estimate', async () => {
+  const store = tempStore();
+  const client = fakeClient({ syncCart: async (items: Record<string, string>) => acceptAll(items, 6.9) });
+  const h = ramiLevyToolHandlers(store, client);
+  await h.addItem({ productId: '1', name: 'Rice', price: 9.9, qty: 1 });
+  const out = textOf(await h.viewCart()) as { total: number; serverTotal: number; serverTotalAt: string; totalsNote: string };
+  assert.deepEqual([out.total, out.serverTotal], [9.9, 6.9], 'the promotion is only in Rami Levy\'s total');
+  assert.match(out.serverTotalAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.match(out.totalsNote, /local estimate/);
+  await h.clearCart();
+  assert.equal((textOf(await h.viewCart()) as { serverTotal?: number }).serverTotal, undefined, 'an empty cart shows no stale total');
+  store.close();
+});
+
 test('viewCart reads local state only, no client call', async () => {
   const store = tempStore();
   store.addItem('1', 'Milk', 6.9, 1);

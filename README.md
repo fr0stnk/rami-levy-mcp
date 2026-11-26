@@ -76,6 +76,9 @@ above first.
 - `rami_levy_view_cart()` — this tool's own list of what it has put in the
   cart since the last checkout, not a read of the website cart (see below).
   The response carries a `scope` field saying so.
+  `total` is a local estimate at list prices; `serverTotal` (with
+  `serverTotalAt`) is Rami Levy's own total from the last sync, including its
+  promotions.
 - `rami_levy_remove_item(productId)`
 - `rami_levy_clear_cart()`
 - `rami_levy_reorder_from_history(numOrders?, minOccurrences?)` — adds onto
